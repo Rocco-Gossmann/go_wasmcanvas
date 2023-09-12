@@ -42,10 +42,10 @@ const max_dimension = 10000
 func Create(width, height uint16) Canvas {
 
 	if width > max_dimension {
-		ex.Throw(&canvasPanic{"invalid", "width", width, max_dimension})
+		ex.Throw(&CanvasPanic{"invalid", "width", width, max_dimension})
 	}
 	if height > max_dimension {
-		ex.Throw(&canvasPanic{"invalid", "height", height, max_dimension})
+		ex.Throw(&CanvasPanic{"invalid", "height", height, max_dimension})
 	}
 
 	var c Canvas

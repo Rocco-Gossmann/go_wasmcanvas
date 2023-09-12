@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	ex "github.com/rocco-gossmann/go_throwable"
 	canvas "github.com/rocco-gossmann/go_wasmcanvas"
 )
 
@@ -26,10 +27,21 @@ func (l Line) Draw(w, h uint16, pixels *[]uint32) {
 	i2, okend := canvas.IndexFromCoords(x2, y2, w, h)
 
 	if !okstart {
-		panic("invalid start coordinates")
+		ex.Throw(&canvas.CanvasPanic{
+			Msg:     "invalid start coordinates",
+			Value:   fmt.Sprint(x1, "/", y1),
+			Allowed: fmt.Sprint("min: 0 / 0    max: ", w-1, "/", h-1),
+			Subject: "Line: Startx, Starty",
+		})
 	}
+
 	if !okend {
-		panic("invalid end coordinates")
+		ex.Throw(&canvas.CanvasPanic{
+			Msg:     "invalid end coordinates",
+			Value:   fmt.Sprint(x2, "/", y2),
+			Allowed: fmt.Sprint("min: 0 / 0    max:", w-1, "/", h-1),
+			Subject: "Line: Endx, Endy",
+		})
 	}
 
 	fmt.Println(x1, y1, "(", i1, ") to ", x2, y2, "(", i2, ")")

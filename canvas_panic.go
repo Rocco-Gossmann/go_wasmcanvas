@@ -1,17 +1,15 @@
 package go_wasmcanvas
 
-type canvasPanic struct {
-	msg     string
-	subject string
-	value   any
-	allowed any
+type CanvasPanic struct {
+	Msg     string
+	Subject string
+	Value   any
+	Allowed any
 }
 
-type CanvasPanic canvasPanic
-
-func (p *canvasPanic) GetAllowed() any { return p.allowed }
+func (p CanvasPanic) GetAllowed() any { return p.Allowed }
 
 // Implement go_throwable.throwable
-func (p *canvasPanic) GetValue() any      { return p.value }
-func (p *canvasPanic) GetMessage() string { return p.msg }
-func (p *canvasPanic) GetSubject() string { return p.subject }
+func (p CanvasPanic) GetValue() any      { return p.Value }
+func (p CanvasPanic) GetMessage() string { return p.Msg }
+func (p CanvasPanic) GetSubject() string { return p.Subject }
