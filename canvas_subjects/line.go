@@ -23,8 +23,8 @@ type Line struct {
 func (l Line) Draw(w, h uint16, pixels *[]uint32) {
 
 	x1, x2, y1, y2 := l.Startx, l.Endx, l.Starty, l.Endy
-	i1, okstart := canvas.IndexFromCoords(x1, y1, w, h)
-	i2, okend := canvas.IndexFromCoords(x2, y2, w, h)
+	_, okstart := canvas.IndexFromCoords(x1, y1, w, h)
+	_, okend := canvas.IndexFromCoords(x2, y2, w, h)
 
 	if !okstart {
 		ex.Throw(&canvas.CanvasPanic{
@@ -43,8 +43,6 @@ func (l Line) Draw(w, h uint16, pixels *[]uint32) {
 			Subject: "Line: Endx, Endy",
 		})
 	}
-
-	fmt.Println(x1, y1, "(", i1, ") to ", x2, y2, "(", i2, ")")
 
 	var drawFragment func(x, y uint16)
 	var factor = float64(l.Alpha) / 255.0
@@ -92,7 +90,7 @@ func (l Line) Draw(w, h uint16, pixels *[]uint32) {
 			ystart, yend, x, xstep := prepLineVars(y1, y2, x1, x2, aspect)
 
 			for y := ystart; y <= yend; y++ {
-				drawFragment(uint16(math.Floor(x)), y)
+				drawFragment(uint16(math.Round(x)), y)
 				x += xstep
 			}
 
@@ -102,7 +100,7 @@ func (l Line) Draw(w, h uint16, pixels *[]uint32) {
 			xstart, xend, y, ystep := prepLineVars(x1, x2, y1, y2, 1/aspect)
 
 			for x := xstart; x <= xend; x++ {
-				drawFragment(x, uint16(math.Floor(y)))
+				drawFragment(x, uint16(math.Round(y)))
 				y += ystep
 			}
 
