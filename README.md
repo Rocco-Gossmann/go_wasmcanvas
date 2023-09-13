@@ -6,6 +6,7 @@ Proves everything nessary to control a HTML-Canvas Pixel via Go.
 - The project must be run from a WebWorker
 ```javascript
 if (WebAssembly) {
+
     const worker = new Worker("./worker.js");
     worker.addEventListener("message", (ev) => {
         if (ev.data instanceof Array) {

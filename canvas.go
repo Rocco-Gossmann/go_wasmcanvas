@@ -1,6 +1,7 @@
 package go_wasmcanvas
 
 import (
+	"fmt"
 	"syscall/js"
 	"time"
 
@@ -26,12 +27,22 @@ type Canvas struct {
 func (c *Canvas) Width() uint16  { return c.width }
 func (c *Canvas) Height() uint16 { return c.height }
 
-// Browser <=> Go sync =========================================================
+// Browser <=> Go Communication ================================================
 // =============================================================================
 var vblankchannel chan byte = make(chan byte)
 
-func reportVBlank(this js.Value, args []js.Value) interface{} {
-	vblankchannel <- 1
+func onMessage(this js.Value, args []js.Value) interface{} {
+
+	ev := args[0].Get("data")
+	if ev.Type() != js.Undefined().Type() {
+		switch ev.Get("0").String() {
+		case "vblankdone":
+			vblankchannel <- 1
+		default:
+			fmt.Println("cant handle message", ev.Get("0"))
+		}
+	}
+
 	return nil
 }
 
@@ -57,9 +68,7 @@ func Create(width, height uint16) Canvas {
 
 	c.pixels = make([]uint32, c.pixelCount)
 
-	c.Draw = func(s CanvasSubject) {
-		s.Draw(c.width, c.height, &c.pixels)
-	}
+	c.Draw = func(s CanvasSubject) { s.Draw(c.width, c.height, &c.pixels) }
 
 	c.Run = func(tick CanvasTickFunction) {
 		fnc := tick
@@ -113,9 +122,8 @@ func Create(width, height uint16) Canvas {
 		}
 	}
 
-	js.Global().Set("reportVBlank", js.FuncOf(reportVBlank))
-
 	js.Global().Call("postMessage", []interface{}{"createCanvas", width, height})
+	js.Global().Call("addEventListener", "message", js.FuncOf(onMessage), false)
 
 	return c
 }
