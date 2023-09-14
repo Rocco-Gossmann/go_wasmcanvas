@@ -109,6 +109,119 @@ These are the possible Events/Messages that are send from Go right now.
 
 ## Usage in Go:
 
-// TODO: Describe available functions.
+### 1.) Import the Package
+```go
+import Canvas "github.com/rocco-gossmann/go_wasmcanvas"
+```
 
-For now you can have a look at the given example on how to use it. Sorry.
+### 2.) Create a Canvas in your `main` function.
+```go
+// Doc
+Canvas.Create(width uint16, height uin16) Canvas.Canvas`
+```
+
+The parameters are 
+
+```go
+func main() {
+    ca := Canvas.Create(320, 200) //<- creates 320 by 200 px canvas
+
+}
+```
+As descripted in the __HTML-Preparations__ The module will then talk to the Main-Threads/UIs Javascript via `postMessage` .
+
+So it has now control over what is shown on screen. Rather it tell the Browser, what it wishes to happen. In a sence the MainThread acts more as a Graphics and IO processor, while Go acts as a data processor.
+(Similar to how a 6502 Processor would interact with the PPU-Chip on a NES console or the VIC-Chip on a C64)
+
+### 3.) Provide a `tick` function
+```go
+// Doc
+type CanvasTickFunction func(c *Canvas, deltaTime float64) CanvasTickFunction
+```
+A `TickFunction` is a function that gets executed every vblank cycle.
+
+#### Return: 
+|   |  |
+|-|-|
+|`TickFunction`| It nedds to Return a pointer to the function that will run next tick.<br>If `nil` is returned, the Canvas will shutdown and end its Execution |
+
+#### Params:
+The TickFunction takes 2 parameters.
+
+|   |  | |
+|-|-|-|
+| `canvas` | `*Canvas.Canvas` | a Pointer to the `Canvas` - insetance that called it |
+| `deltaTime` |`float64` | provieds a percentage value of how many fractions of a second have passed since the last tick execution.
+
+#### More Details on deltaTime
+```
+example:
+1.2   == 1200ms == 1 Second and 2ms
+0.5   ==  500ms == half a second
+0.016 ==   16ms == 1/60th of a second.
+```
+
+Lets give an Example:
+
+Here we want a Pixel to cross a canvas in 5 Seconds (Regardless of Canvas size or Browser Performance).
+Browser performance (and thus execution times) can differ wildly, but thanks to the `deltaTime`, we can still reach our goal of always having the pixel cross the canvas in 5 seconds.
+
+In return the fluidity of animation depends on how powerfull the browser is
+```go
+const pixelMoveTime float64 = 5; // <- Cross the canvas in 5 Seconds
+var   pixelX        float64 = 0; // <- Start pixel at X
+
+func tick(canvas *Canvas.Canvas, deltaTime float64) Canvas.CanvasTickFunction {
+
+    var pixelMoveSpeed = float64(canvas.Width() / pixelMoveTime) // <- Pixels per Second
+
+    pixelX += pixelMoveSpeed * deltaTime; // <- Multiply it with deltaTime to find 
+                                          //    how much ot move this tick
+
+    // See  the next README-Section on CanvasSubjects and Drawing 
+    // for more info on this line
+    canvas.Draw(cs.Pixel{X: uint16(pixelX), Y: 100, Color: Canvas.COLOR_RED})
+
+
+    return tick; // <- function returns itself, to keep the loop running
+}
+```
+
+
+
+### 4. Telling the Canvas to run the Tick-Function
+
+```go
+// Doc
+Canvas.Run( tick TickFunction)
+```
+
+This is done in the `main` function as well
+
+So lets bring the last 4 points all together 
+
+```go
+import(
+    Canvas "github.com/rocco-gossmann/go_wasmcanvas"
+    Cs     "github.com/rocco-gossmann/go_wasmcanvas/canvas_subjects"
+)
+
+const pixelMoveTime float64 = 5;
+var   pixelX        float64 = 0;
+
+func tick(c *Canvas.Canvas, dt float64) Canvas.CanvasTickFunction {
+    var pixelMoveSpeed = float64(c.Width() / pixelMoveTime)
+    pixelX += pixelMoveSpeed * dt;
+    canvas.Draw(Cs.Pixel{X: uint16(pixelX), Y: 100, Color: Canvas.COLOR_RED})
+    return tick; 
+}
+
+func main() {
+    ca := Canvas.Create(320, 200)
+    ca.Run(tick); //<-Tell the Canvas to run the Tick function we created
+}
+```
+
+
+// TODO: Describe available functions.
+For now you can have a look at the given example. Sorry.
