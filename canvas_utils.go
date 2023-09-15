@@ -1,8 +1,6 @@
 package go_wasmcanvas
 
-import (
-	"math"
-)
+import "math"
 
 func roundBlend(v float64) float64 {
 	if v > 0 {
@@ -10,13 +8,6 @@ func roundBlend(v float64) float64 {
 	} else {
 		return math.Floor(v)
 	}
-}
-
-func IndexFromCoords(x, y, w, h uint16) (uint32, bool) {
-	if x < 0 || x > w-1 || y < 0 || y > h-1 {
-		return 0, false
-	}
-	return uint32(y*w + x), true
 }
 
 func BlendPixel(existingPixel uint32, newPixel uint32, factor float64) (ret uint32) {

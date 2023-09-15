@@ -1,36 +1,50 @@
 if (WebAssembly) {
 
     const worker = new Worker("./worker.js");
-    let ctx 
+
+    const canvases = new Map();
+    const contexts = new Map();
 
     worker.addEventListener("message", (ev) => {
         if (ev.data instanceof Array) {
+            const canvasid = ev.data[1];
+            const canv = canvases.get(canvasid)
+            const ctx = contexts.get(canvasid);
+
             switch (ev.data[0]) {
-                case "createCanvas": 
-                    // [ 'createCanvas', canvasWidth, canvasHeight ]
+
+                case "createCanvas": {
                     const canv = document.createElement("canvas");
-                    canv.width = ev.data[1];
-                    canv.height = ev.data[2];
+                    canv.width = ev.data[2];
+                    canv.height = ev.data[3];
                     canv.className="go-wasm-canvas";
-                    ctx = canv.getContext("2d");
+
+                    canvases.set(canvasid, canv);
+                    contexts.set(canvasid, canv.getContext("2d"));
 
                     document.body.appendChild(canv);
                     reactToScreenSize(canv)
-                    break;
+                } break;
 
-                case "vblank": 
-                    // [ 'vblank` ] => [ 'vblankdone` ]
-                    const imgDat = new ImageData(ev.data[1], 320, 200);
+
+                case "vblank": {
+                    const imgDat = new ImageData(ev.data[2], canv.width, canv.height);
                     window.requestAnimationFrame( () => { 
                         ctx.putImageData(imgDat, 0, 0);
                         worker.postMessage(["vblankdone"]) 
                     }); 
-                    break;
+                } break;
 
-                default:
-                    console.log(
-                        "[WORKER MESSAGE]", ev.data[0], " in ", ev
-                    );
+
+                case "destroyCanvas": {
+                    canv.parentNode.removeChild(canv);
+                    canvases.delete(canvasid);
+                    contexts.delete(canvasid);
+                } break;
+
+                default:{
+                    console.log( "[WORKER MESSAGE]", ev.data[0], " in ", ev);
+                }
             }
         }
         else console.log("unknwon worker message", ev.data);

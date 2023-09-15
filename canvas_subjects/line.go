@@ -1,18 +1,16 @@
 package canvassubjects
 
 import (
-	"fmt"
 	"math"
 
-	ex "github.com/rocco-gossmann/go_throwable"
-	canvas "github.com/rocco-gossmann/go_wasmcanvas"
+	Canvas "github.com/rocco-gossmann/go_wasmcanvas"
 )
 
 type Line struct {
 	Startx, Starty uint16
 	Endx, Endy     uint16
 
-	Color canvas.Color
+	Color Canvas.Color
 
 	Alpha uint8
 }
@@ -20,41 +18,24 @@ type Line struct {
 // =============================================================================
 // Implement CanvasSubject
 // =============================================================================
-func (l Line) Draw(w, h uint16, pixels *[]uint32) {
+func (l Line) Draw(c *Canvas.Canvas) {
 
 	x1, x2, y1, y2 := l.Startx, l.Endx, l.Starty, l.Endy
-	_, okstart := canvas.IndexFromCoords(x1, y1, w, h)
-	_, okend := canvas.IndexFromCoords(x2, y2, w, h)
-
-	if !okstart {
-		ex.Throw(&canvas.CanvasPanic{
-			Msg:     "invalid start coordinates",
-			Value:   fmt.Sprint(x1, "/", y1),
-			Allowed: fmt.Sprint("min: 0 / 0    max: ", w-1, "/", h-1),
-			Subject: "Line: Startx, Starty",
-		})
-	}
-
-	if !okend {
-		ex.Throw(&canvas.CanvasPanic{
-			Msg:     "invalid end coordinates",
-			Value:   fmt.Sprint(x2, "/", y2),
-			Allowed: fmt.Sprint("min: 0 / 0    max:", w-1, "/", h-1),
-			Subject: "Line: Endx, Endy",
-		})
-	}
 
 	var drawFragment func(x, y uint16)
 	var factor = float64(l.Alpha) / 255.0
 
 	if l.Alpha == 0x0 || l.Alpha == 0xff {
 		drawFragment = func(x, y uint16) {
-			(*pixels)[y*w+x] = uint32(l.Color)
+			if px := c.GetPixel(x, y); px != nil {
+				*px = uint32(l.Color)
+			}
 		}
 	} else {
 		drawFragment = func(x, y uint16) {
-			var i = y*w + x
-			(*pixels)[i] = canvas.BlendPixel((*pixels)[i], uint32(l.Color), factor)
+			if px := c.GetPixel(x, y); px != nil {
+				*px = Canvas.BlendPixel(*px, uint32(l.Color), factor)
+			}
 		}
 	}
 

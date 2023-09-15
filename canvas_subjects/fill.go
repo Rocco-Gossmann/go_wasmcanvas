@@ -10,17 +10,24 @@ type Fill struct {
 
 // Implement CanvasSubject =====================================================
 // ==============================================================================
-func (f Fill) Draw(w, h uint16, pixels *[]uint32) {
+func (f Fill) Draw(c *canvas.Canvas) {
+
+	px := c.GetPixelIndex(0)
+	nxt := uint32(1)
 
 	if f.Alpha == 0xff || f.Alpha == 0 {
-		for index := 0; index < len(*pixels); index++ {
-			(*pixels)[index] = uint32(f.Color)
+		for px != nil {
+			*px = uint32(f.Color)
+			px = c.GetPixelIndex(nxt)
+			nxt++
 		}
 	} else {
 		var factor float64 = float64(f.Alpha) / 255.0
 
-		for index := 0; index < len(*pixels); index++ {
-			(*pixels)[index] = canvas.BlendPixel((*pixels)[index], uint32(f.Color), factor)
+		for px != nil {
+			*px = canvas.BlendPixel(*px, uint32(f.Color), factor)
+			px = c.GetPixelIndex(nxt)
+			nxt++
 		}
 	}
 

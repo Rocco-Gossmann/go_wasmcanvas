@@ -1,35 +1,21 @@
 package main
 
-import (
-	canvas "github.com/rocco-gossmann/go_wasmcanvas"
-	cs "github.com/rocco-gossmann/go_wasmcanvas/canvas_subjects"
-)
+import Ca "github.com/rocco-gossmann/go_wasmcanvas"
 
-func tick(c *canvas.Canvas, deltaTime float64) canvas.CanvasTickFunction {
+var pixelX float64 = 0     //<- hold the pixels position
+const duration float64 = 5 //<- move the pixel in 5 seconds
 
-	// Should slowly blend in a Green pixel at coords 10 x 10
-	c.Draw(cs.Pixel{X: 10, Y: 10, Color: canvas.COLOR_GREEN, Alpha: 4})
+func tick(c *Ca.Canvas, deltaTime float64) Ca.CanvasTickFunction {
 
-	c.Draw(cs.Line{
-		Startx: 0, Starty: 0,
-		Endx: 319, Endy: 199,
-		Color: canvas.COLOR_ORANGE,
-	})
-
-	c.Draw(cs.Pixel{X: 0, Y: 0, Color: canvas.COLOR_WHITE})
-	c.Draw(cs.Pixel{X: 319, Y: 0, Color: canvas.COLOR_WHITE})
-	c.Draw(cs.Pixel{X: 0, Y: 199, Color: canvas.COLOR_WHITE})
-	c.Draw(cs.Pixel{X: 319, Y: 199, Color: canvas.COLOR_WHITE})
+	var pxPerSec = float64(c.Width()) / duration
+	pixelX += pxPerSec * deltaTime
+	c.SetPixel(uint16(pixelX), 100, Ca.COLOR_GREEN)
 
 	return tick
-
 }
 
 func main() {
-	canv := canvas.Create(320, 200)
-
-	// Initial background fill
-	canv.Draw(cs.Fill{Color: canvas.COLOR_DARKGRAY})
+	canv := Ca.Create(320, 200)
 
 	canv.Run(tick)
 }
