@@ -16,3 +16,7 @@ WebAssembly.instantiateStreaming(fetch("./main.wasm"), go.importObject)
         return go.run(gowasm.instance)
     })      
     .then( () => self.postMessage("wasm has ended"))
+
+addEventListener("blur", () => {
+    console.log("blur");
+}) 

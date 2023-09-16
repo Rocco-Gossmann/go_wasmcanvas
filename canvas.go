@@ -103,7 +103,13 @@ func (c Canvas) SetPixel(x, y uint16, color Color) bool {
 	return true
 }
 
-func (c Canvas) Draw(s CanvasSubject) { s.Draw(&c) }
+func (c Canvas) Draw(frag CanvasFragment) {
+	frag.Draw(c.pixelCount, c.width, c.height, &(c.pixels))
+}
+
+func (c Canvas) Apply(fnc CanvasFragmentFunction) {
+	fnc(c.pixelCount, c.width, c.height, &c.pixels)
+}
 
 func (c Canvas) Run(tick CanvasTickFunction) {
 	fnc := tick
