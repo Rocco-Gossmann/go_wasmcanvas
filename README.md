@@ -1,7 +1,8 @@
 # Go-WASMCanvas
 
-Proves everything nessary to control a HTML-Canvas Pixel by Pixel via Go.
-https://rocco-gossmann.github.io/go_wasmcanvas/
+Provides everything nessary to control a HTML-Canvas Pixel by Pixel via Go.
+
+check out a demo here: https://rocco-gossmann.github.io/go_wasmcanvas/
 
 ## HTML-Preparation:
 This is only usable in WebBrowsers, therefore some preparations need to be made.
@@ -14,8 +15,7 @@ cd `go env GOROOT`/misc/wasm
 To Find it.
 
 ---
-### 2. The WebAssembly must be run from a WebWorker 
-Reason being, as to not impact the UI
+### 2. The WebAssembly must be run from a WebWorker, as to not impact the UI
 
 This is what it should look like 
 ```javascript
@@ -107,12 +107,14 @@ else alert("Your Browser does not support WebAssembly");
 ```
 Now for a more detailed explaination:
 
-Each event send by or to GoWasm will be structured like follows:
+Each event send by or to Go-WASMCanvas will be structured like follows:
 ```typescript
-[ task: string,  ...args: any]
+[ task: string, canvas.id: number,  ...args: any]
 ```
 and Array whos first element always determins, how the other elements
-should be interpreted.
+should be interpreted. 
+The Second element is always the canvas, that issued the postMessage 
+(You can create multiple canvases via Go)
 
 These are the possible Events/Messages that are send from Go right now.
 
