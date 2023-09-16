@@ -38,8 +38,8 @@ func tick(c *Ca.Canvas, deltaTime float64) Ca.CanvasTickFunction {
 func main() {
 	canv := Ca.Create(320, 200)
 
-	/*	canv.Draw(&fill)
-		fill.Alpha = 16
-	*/
+	canv.Draw(&fill)
+	fill.Alpha = 16
+
 	canv.Run(tick)
 }
