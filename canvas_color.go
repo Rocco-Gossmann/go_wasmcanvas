@@ -2,10 +2,6 @@ package go_wasmcanvas
 
 type Color uint32
 
-func MakeColor(r uint8, g uint8, b uint8) uint32 {
-	return uint32((r << 16) + (g << 8) + b)
-}
-
 const (
 	COLOR_BLACK      = 0x0
 	COLOR_WHITE      = 0xffffff

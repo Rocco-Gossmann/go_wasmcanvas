@@ -257,11 +257,157 @@ But they will never go await to 100%.
 
 But with some clever Application design, we can at least hide them.  (See the "Advanced" Drawing section further down);
 
+## Colors
+
+Go-WASMCanvas uses `24Bit` colors.
+Each pixel of the Canvas is represented by a `uint32`
+```
+# 00 rr gg bb
+   |  |  |  |
+   |  |  |  --- 8Bit Blue channel
+   |  |  -------8bit Green channel  
+   |  ----------8bit Red chanel
+   -------------unused memory 
+```
+The first 8bit of each pixel are not transfered to the canvas, and are only visible to Go. 
+They can for example be used by a method from the  __Advanced Drawing__ Section 
+to give some state to each pixel.
+
+Go-WASMCanvas comes with a set of predefined colors. These are made to 
+emulate the Color-Palette of a C64
+
+You are however free do define your own pixel colors, as the Canvas.Color - Type is base on the `uint32` type 
+```go
+type Canvas.Color uint32
+```
+
+## Advanced Drawing
+
+Drawing everything Pixel by pixel via the Canvas.SetPixel Method would be highly inefitient though.
+
+Thats why Go-Canvas supports two more methods to draw things
 
 
-// TODO: Describe available functions.
-For now you can have a look at the given example. Sorry.
+### `Canvas.Apply()`
+```go
+ca.Apply(func(pixelCount uint32, canvasWidth, canvasHeight uint16, pixels *[]uint32))
+```
+The `Apply` method takes in a function the get access to the essentialy information needed to draw pixels on the canvas. including `pixels`-Memory.  
+
+It is best used for things that apply to to the entire Canvas. (Like Filters, etc.)
 
 
-// TODO: Advanced Drawing Section
-For now you can have a look at the given example. Sorry.
+### `Canvas.Draw()`
+```go
+ca.Draw(fragment Canvas.CanvasFragment) 
+```
+the `Draw` method is a bit more sophisticated than the `Apply` method.
+Allowing you to define what to draw via the definition of a `struct`.
+
+The Only requirement is, that this `struct` must implement the `Canvas.CanvasFragment` - `interface`
+
+The Interface is defined as follows.
+```go
+type CanvasFragment interface {
+	Draw(pixelCnt uint32, pixelPerRow uint16, rowCount uint16, pixels *[]uint32)
+}
+```
+
+### Defing A canvas Fragment
+As you can see the All the Interface requires is a `Draw` method, that is provided the vital fields that are required to manipulate each pixel of the canvas.
+
+`*pixels` grants direct access to the entire pixelbuffer of the canvas.
+
+In a sence the Fragments act more like shaders, as the do conventional drawing functions.
+
+Given the direct pixel access, you can come up with all kinds of things to draw this way.
+
+As an Example, This package includes 2 predefined CanvasFragments
+
+### Included Canvas-Fragments.
+This package comes with two available `CanvasFragments` out of the box.
+
+```go
+// Fills the canvas with the given color
+canvasfragment.Fill{
+    Color Canvas.Color
+    Alpha byte
+}
+
+```
+
+```go
+// Draws a line between 2 or more points
+canvasfragment.Line{
+    Startx, Starty, Endx, Endy uint16, //<- can be ignored if Points are defined
+
+	Points []Canvas.Point,  //<- can be ignored if Startx/y and Endx/y are defined
+
+	Color Canvas.Color
+    Alpha byte
+}
+
+
+```
+Using a Fragment is as simple, as creating an instance using its structure and passing its Adress to the `Canvas.Draw()` function.
+```go
+var backgroundFill = CanvasFragment.Fill{ 
+    Color: Canvas.COLOR_DARKGRAY 
+};
+
+func tick(c *Ca.Canvas, dt float64) Ca.CanvasTickFunction {
+
+    c.Draw(&backgroundFill);
+
+    return tick;
+
+}
+```
+
+## Additional Canvas Function
+
+In additon to `Run`, `Apply` and `Draw`, there are also the following functions
+available
+
+```go
+func (c Canvas) GetPixel(x, y uint16) *uint32 
+// Returns a pointer to the pixel at coordinates x,y 
+//   or `nil` if x or y are outside the Canvas bounds
+
+
+func (c Canvas) GetPixelIndex(index uint32) (pixel *uint32) 
+// If you know the index of the pixel you can get its Adress 
+//   using this method
+//   or `nil` if the index is out of the pixel buffers bounds 
+
+
+func (c Canvas) SetPixel(x, y uint16, color Color) bool {
+// Directly sets a Pixel on the canvas to the given color
+//   returns true if x,y are valid coordinates 
+//           false if x or y are out of the canvas bounds
+
+```
+
+
+## Additional Package Function
+
+The Package provieds a few helper functions:
+
+```go
+func Canvas.ExtractRGB(c Canvas.Color) (r, g, b float64) 
+//To split a given color into its conterparts 
+//  For technical reasons concerning the next function, the results
+//  a are cast as `float64`
+
+
+func Canvas.BlendPixel(existingPixel *uint32, newPixel uint32, factor float64) 
+// Mixes the color of `newPixel` into `*existingPixel` by the given factor
+//  factor 1.0 => the new pixel completely overrides the old one
+//  factor 0.5 => Existing Pixel becomes a half and half blend of 
+//                Itself and the new Pixel
+//  factor 0.0 => the old Pixel stays unchanged
+
+
+func Canvas.CombineRGB(r, g, b byte) Canvas.Color
+// A Helper to create a Color from 8bit r, g and b values
+```

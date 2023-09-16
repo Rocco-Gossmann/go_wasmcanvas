@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func ExtractRGB(px uint32) (r float64, g float64, b float64) {
+func ExtractRGB(px Color) (r float64, g float64, b float64) {
 	r = float64(px & (255 << 16) >> 16)
 	g = float64(px & (255 << 8) >> 8)
 	b = float64(px & (255))
@@ -12,10 +12,14 @@ func ExtractRGB(px uint32) (r float64, g float64, b float64) {
 	return
 }
 
+func CombineRGB(r, g, b byte) Color {
+	return Color((uint32(r) << 16) + (uint32(g) << 8) + uint32(b))
+}
+
 func BlendPixel(existingPixel *uint32, newPixel uint32, factor float64) {
 
-	nr, ng, nb := ExtractRGB(newPixel)
-	er, eg, eb := ExtractRGB(*existingPixel)
+	nr, ng, nb := ExtractRGB(Color(newPixel))
+	er, eg, eb := ExtractRGB(Color(*existingPixel))
 
 	*existingPixel = ((*existingPixel) & (0xff000000)) +
 		(uint32(er-roundBlend((er-nr)*factor)) << 16) +
