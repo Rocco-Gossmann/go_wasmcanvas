@@ -1,4 +1,4 @@
-BUILDDIR:= ./docs
+BUILDDIR:= ../docs
 BOILERPLATE:=./boilerplate
 
 BOILERFILES:=$(BUILDDIR)/  $(BUILDDIR)/index.html
