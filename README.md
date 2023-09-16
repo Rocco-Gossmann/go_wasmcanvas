@@ -1,6 +1,7 @@
 # Go-WASMCanvas
 
-Proves everything nessary to control a HTML-Canvas Pixel via Go.
+Proves everything nessary to control a HTML-Canvas Pixel by Pixel via Go.
+https://rocco-gossmann.github.io/go_wasmcanvas/
 
 ## HTML-Preparation:
 This is only usable in WebBrowsers, therefore some preparations need to be made.
