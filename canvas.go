@@ -37,8 +37,6 @@ func onMessage(this js.Value, args []js.Value) interface{} {
 		switch ev.Get("0").String() {
 		case "vblankdone":
 			vblankchannel <- 1
-		default:
-			fmt.Println("cant handle message", ev.Get("0"))
 		}
 	}
 
