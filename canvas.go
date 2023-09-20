@@ -1,7 +1,6 @@
 package go_wasmcanvas
 
 import (
-	"fmt"
 	"syscall/js"
 	"time"
 
