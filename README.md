@@ -2,7 +2,8 @@
 
 Provides everything nessary to control a HTML-Canvas Pixel by Pixel via Go.
 
-check out a demo here: https://rocco-gossmann.github.io/go_wasmcanvas/
+check out a simple demo here: https://rocco-gossmann.github.io/go_wasmcanvas/
+Or for a more complex application here: https://rocco-gossmann.github.io/GoWas-DemoProject/
 
 ## HTML-Preparation:
 This is only usable in WebBrowsers, therefore some preparations need to be made.
